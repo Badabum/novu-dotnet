@@ -1,4 +1,4 @@
-using Novu.DTO;
+using Novu.Subscribers;
 using Novu.Tests.Fixtures;
 
 namespace Novu.Tests.Subscribers;
@@ -21,19 +21,19 @@ public class SubscriberUnitTest : IClassFixture<SubscriberFixture>
     
     // Clean up
 
-    await _fixture.NovuClient.Subscriber.DeleteSubscriber(subscriber.SubscriberId);
+    await _fixture.NovuClient.Subscribers.DeleteSubscriber(subscriber.SubscriberId);
   }
 
   [Fact]
   public async void Should_Get_All_Subscribers()
   {
-    var subscribers = await _fixture.NovuClient.Subscriber.GetSubscribers();
+    var subscribers = await _fixture.NovuClient.Subscribers.GetSubscribers();
 
     Assert.True(subscribers.TotalCount > 0, "subscribers.TotalCount > 0");
 
     if (subscribers.TotalCount <= subscribers.PageSize) return;
     
-    var secondPage = await _fixture.NovuClient.Subscriber.GetSubscribers(1);
+    var secondPage = await _fixture.NovuClient.Subscribers.GetSubscribers(1);
     Assert.True(secondPage.TotalCount > 0, "secondPage.TotalCount > 0");
   }
 
@@ -41,7 +41,7 @@ public class SubscriberUnitTest : IClassFixture<SubscriberFixture>
   public async void Should_Get_One_Subscriber()
   {
     var testSub = await _fixture.GenerateTestSubscriber();
-    var subscriber = await _fixture.NovuClient.Subscriber.GetSubscriber(testSub.SubscriberId);
+    var subscriber = await _fixture.NovuClient.Subscribers.GetSubscriber(testSub.SubscriberId);
     
     Assert.Equal(subscriber.SubscriberId, testSub.SubscriberId);
   }
@@ -54,7 +54,7 @@ public class SubscriberUnitTest : IClassFixture<SubscriberFixture>
     subToUpdate.FirstName = "Updated";
     subToUpdate.LastName = "Subscriber";
     
-    var updatedSub = await _fixture.NovuClient.Subscriber.UpdateSubscriber(subToUpdate.SubscriberId!, subToUpdate);
+    var updatedSub = await _fixture.NovuClient.Subscribers.UpdateSubscriber(subToUpdate.SubscriberId!, subToUpdate);
     
     // Check to make sure fields changed
     Assert.Equal(updatedSub.FirstName, subToUpdate.FirstName);
@@ -68,7 +68,7 @@ public class SubscriberUnitTest : IClassFixture<SubscriberFixture>
   public async void Should_Delete_Subscriber()
   {
     var subscriber = await _fixture.GenerateTestSubscriber();
-    var deleteResponse = await _fixture.NovuClient.Subscriber.DeleteSubscriber(subscriber.SubscriberId!);
+    var deleteResponse = await _fixture.NovuClient.Subscribers.DeleteSubscriber(subscriber.SubscriberId!);
     
     Assert.True(deleteResponse.Data.Acknowledged);
   }
@@ -77,10 +77,7 @@ public class SubscriberUnitTest : IClassFixture<SubscriberFixture>
   public async void Should_Update_Online_Status()
   {
     var subscriber = await _fixture.GenerateTestSubscriber();
-    var updateResponse = await _fixture.NovuClient.Subscriber.UpdateOnlineStatus(subscriber.SubscriberId!, new SubscriberOnlineDto
-    {
-      IsOnline = true
-    });
+    var updateResponse = await _fixture.NovuClient.Subscribers.UpdateOnlineStatus(subscriber.SubscriberId!, new SubscriberOnlineDto(true));
     
     Assert.True(updateResponse.IsOnline);
   }

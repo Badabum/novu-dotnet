@@ -1,8 +1,6 @@
-using Novu.DTO;
-using Novu.DTO.Topics;
 using Refit;
 
-namespace Novu.Interfaces;
+namespace Novu.Topics;
 
 public interface ITopicClient
 {
@@ -23,13 +21,13 @@ public interface ITopicClient
     /// </para>
     /// </example> 
     /// <param name="dto">
-    /// <see cref="TopicCreateDto"/>
+    /// <see cref="CreateTopicRequest"/>
     /// </param>
     /// <returns>
-    /// <see cref="TopicCreateResponseDto"/>
+    /// <see cref="TopicCreateResponse"/>
     /// </returns>
     [Post("/topics")]
-    public Task<TopicCreateResponseDto> CreateTopicAsync([Body]TopicCreateDto dto);
+    public Task<TopicCreateResponse> CreateTopicAsync([Body]CreateTopicRequest dto);
     
     /// <summary>
     ///     <para>
@@ -50,10 +48,10 @@ public interface ITopicClient
     ///  Page number - zero-based indexing (<see cref="int"/>)
     /// </param>
     /// <returns>
-    /// Returns a <see cref="PaginatedResponseDto{T}"/> of type <see cref="TopicDto"/>
+    /// Returns a <see cref="PaginatedResponse{T}"/> of type <see cref="Topic"/>
     /// </returns>
     [Get("/topics")]
-    public Task<PaginatedResponseDto<TopicDto>> GetTopicsAsync([Query]int page = 0);
+    public Task<PaginatedResponse<Topic>> GetTopicsAsync([Query]int page = 0);
     
     /// <summary>
     ///     <para>
@@ -70,7 +68,7 @@ public interface ITopicClient
     /// </param>
     /// <returns></returns>
     [Get("/topics/{topicKey}")]
-    public Task<TopicResponseDto> GetTopicAsync(string topicKey);
+    public Task<TopicResponse> GetTopicAsync(string topicKey);
     
     /// <summary>
     /// Add an array of subscribers to a topic.
@@ -93,13 +91,13 @@ public interface ITopicClient
     ///     Topic key that the subscribers will be added to
     /// </param>
     /// <param name="dto">
-    ///     <see cref="TopicSubscriberUpdateDto"/> - Array of subscriber IDs
+    ///     <see cref="TopicSubscriberUpdate"/> - Array of subscriber IDs
     /// </param>
     /// <returns>
-    ///     <see cref="TopicSubscriberAdditionResponseDto"/>
+    ///     <see cref="TopicSubscriberAdditionResponse"/>
     /// </returns>
     [Post("/topics/{topicKey}/subscribers")]
-    public Task<TopicSubscriberAdditionResponseDto> AddSubscriberAsync(string topicKey, TopicSubscriberUpdateDto dto);
+    public Task<TopicSubscriberAdditionResponse> AddSubscriberAsync(string topicKey, TopicSubscriberUpdate dto);
     
     /// <summary>
     /// Check if a subscriber belongs to a certain topic
@@ -114,7 +112,7 @@ public interface ITopicClient
     /// <param name="subscriberId">Subscriber ID</param>
     /// <returns></returns>
     [Get("/topics/{topicKey}/subscribers/{subscriberId}")]
-    public Task<TopicSubscriberDto> VerifySubscriberAsync(string topicKey, string subscriberId);
+    public Task<TopicSubscriber> VerifySubscriberAsync(string topicKey, string subscriberId);
     
     /// <summary>
     /// Remove a subscriber from a topic
@@ -137,7 +135,7 @@ public interface ITopicClient
     /// <param name="subscriberKey"></param>
     /// <returns></returns>
     [Post("/topics/{topicKey}/subscribers/removal")]
-    public Task RemoveSubscriberAsync(string topicKey, [Body]TopicSubscriberUpdateDto subscriberKey);
+    public Task RemoveSubscriberAsync(string topicKey, [Body]TopicSubscriberUpdate subscriberKey);
     
     /// <summary>
     /// Delete a topic by key
@@ -169,8 +167,8 @@ public interface ITopicClient
     ///     New topic name
     /// </param>
     /// <returns>
-    ///     <see cref="TopicResponseDto"/>
+    ///     <see cref="TopicResponse"/>
     /// </returns>
     [Patch("/topics/{topicKey}")]
-    public Task<TopicResponseDto> RenameTopicAsync(string topicKey, [Body]RenameTopicRequest request);
+    public Task<TopicResponse> RenameTopicAsync(string topicKey, [Body]RenameTopicRequest request);
 }

@@ -1,11 +1,10 @@
-﻿using Novu.DTO;
-using Novu.Models;
+﻿using Novu.Subscribers;
 
 namespace Novu.Tests.Fixtures;
 
 public class SubscriberFixture : IDisposable
 {
-    private List<SubscriberDto> Subscribers { get; set; } = new List<SubscriberDto>();
+    private List<Subscriber> Subscribers { get; set; } = new List<Subscriber>();
     public NovuClient NovuClient { get; }
 
     public SubscriberFixture()
@@ -19,23 +18,15 @@ public class SubscriberFixture : IDisposable
         NovuClient = novu;
     }
 
-    public async Task<SubscriberDto> GenerateTestSubscriber()
+    public async Task<Subscriber> GenerateTestSubscriber()
     {
-        var additionalData = new List<AdditionalDataDto>
+        var additionalData = new List<AdditionalData>
         {
-            new AdditionalDataDto
-            {
-                Key = "FRAMEWORK",
-                Value = ".NET"
-            },
-            new AdditionalDataDto
-            {
-                Key = "SMS_PREFERENCE",
-                Value = "EMERGENT-ONLY"
-            }
+            new("FRAMEWORK", ".NET"),
+            new("SMS_PREFERENCE", "EMERGENT-ONLY")
         };
         
-        var subscriber = await NovuClient.Subscriber.CreateSubscriber(new CreateSubscriberDto
+        var subscriber = await NovuClient.Subscribers.CreateSubscriber(new CreateSubscriberDto
         {
             SubscriberId = Guid.NewGuid().ToString(),
             FirstName = "Novu",
@@ -56,7 +47,7 @@ public class SubscriberFixture : IDisposable
     {
         foreach (var testSubscriber in Subscribers)
         {
-            await NovuClient.Subscriber.DeleteSubscriber(testSubscriber.SubscriberId);
+            await NovuClient.Subscribers.DeleteSubscriber(testSubscriber.SubscriberId);
         }
     }
 }

@@ -1,5 +1,3 @@
-using Novu.Models;
-
 namespace Novu.Tests.Topics;
 
 public class Fixture : IDisposable

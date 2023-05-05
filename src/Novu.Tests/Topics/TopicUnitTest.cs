@@ -1,5 +1,5 @@
-using Novu.DTO;
-using Novu.DTO.Topics;
+using System.Collections.Immutable;
+using Novu.Topics;
 
 namespace Novu.Tests.Topics;
 
@@ -17,12 +17,7 @@ public class TopicUnitTest : IClassFixture<Fixture>
     {
         var client = _fixture.NovuClient;
 
-        var topicRequest = new TopicCreateDto
-        {
-            Key = $"test:topic:{Guid.NewGuid().ToString()}",
-            Name = "Test Topic",
-            
-        };
+        var topicRequest = new CreateTopicRequest($"test:topic:{Guid.NewGuid().ToString()}", "Test Topic");
 
         var topic = await client.Topic.CreateTopicAsync(topicRequest);
         
@@ -34,28 +29,17 @@ public class TopicUnitTest : IClassFixture<Fixture>
     {
         var client = _fixture.NovuClient;
 
-        var topicRequest = new TopicCreateDto
-        {
-            Key = $"test:topic:{Guid.NewGuid().ToString()}",
-            Name = "Test Topic",
-            
-        };
-        
+        var topicRequest = new CreateTopicRequest($"test:topic:{Guid.NewGuid().ToString()}", "Test Topic");
+
         var topic = await client.Topic.CreateTopicAsync(topicRequest);
 
-        var subscriberList = new TopicSubscriberUpdateDto
-        {
-            Keys = new List<string>
-            {
-                "test:subscriber:1",
-            }
-        };
+        var subscriberList = new TopicSubscriberUpdate(ImmutableArray<string>.Empty.Add("test:subscriber:1"));
 
         var result = await client.Topic.AddSubscriberAsync(topic.Data.Key, subscriberList);
         
         Assert.Single(result.Data.Succeeded);
         
-        Assert.Contains(subscriberList.Keys, x => x == result.Data.Succeeded.First());
+        Assert.Contains(subscriberList.Subscribers, x => x == result.Data.Succeeded.First());
     }
 
     [Fact]
@@ -75,23 +59,14 @@ public class TopicUnitTest : IClassFixture<Fixture>
     {
         var client = _fixture.NovuClient;
 
-        var topic = await client.Topic.CreateTopicAsync(new TopicCreateDto
-        {
-            Key = $"test:topic:{Guid.NewGuid().ToString()}",
-            Name = "Test Topic - Should_Validate_Topic_Subscriber",
-        });
-        
-        var subscriberList = new TopicSubscriberUpdateDto
-        {
-            Keys = new List<string>
-            {
-                "test:subscriber:1",
-            }
-        };
+        var topic = await client.Topic.CreateTopicAsync(new CreateTopicRequest(
+            $"test:topic:{Guid.NewGuid().ToString()}", "Test Topic - Should_Validate_Topic_Subscriber"));
+
+        var subscriberList = new TopicSubscriberUpdate(ImmutableArray<string>.Empty.Add("test:subscriber:1"));
         
         await client.Topic.AddSubscriberAsync(topic.Data.Key, subscriberList);
         
-        await client.Topic.VerifySubscriberAsync(topic.Data.Key, subscriberList.Keys.First());
+        await client.Topic.VerifySubscriberAsync(topic.Data.Key, subscriberList.Subscribers.First());
     }
 
     [Fact]
@@ -99,20 +74,11 @@ public class TopicUnitTest : IClassFixture<Fixture>
     {
         var client = _fixture.NovuClient;
 
-        var topic = await client.Topic.CreateTopicAsync(new TopicCreateDto
-        {
-            Key = $"test:topic:{Guid.NewGuid().ToString()}",
-            Name = "Test Topic - Should_Validate_Topic_Subscriber",
-        });
-        
-        var subscriberList = new TopicSubscriberUpdateDto
-        {
-            Keys = new List<string>
-            {
-                "test:subscriber:1",
-            }
-        };
-        
+        var topic = await client.Topic.CreateTopicAsync(new CreateTopicRequest(
+            $"test:topic:{Guid.NewGuid().ToString()}", "Test Topic - Should_Validate_Topic_Subscriber"));
+
+        var subscriberList = new TopicSubscriberUpdate(ImmutableArray<string>.Empty.Add("test:subscriber:1"));
+
         await client.Topic.AddSubscriberAsync(topic.Data.Key, subscriberList);
         
         await client.Topic.RemoveSubscriberAsync(topic.Data.Key, subscriberList);
@@ -123,11 +89,8 @@ public class TopicUnitTest : IClassFixture<Fixture>
     {
         var client = _fixture.NovuClient;
 
-        var topic = await client.Topic.CreateTopicAsync(new TopicCreateDto
-        {
-            Key = $"test:topic:{Guid.NewGuid().ToString()}",
-            Name = "Test Topic - Should_Validate_Topic_Subscriber",
-        });
+        var topic = await client.Topic.CreateTopicAsync(new CreateTopicRequest(
+            $"test:topic:{Guid.NewGuid().ToString()}", "Test Topic - Should_Validate_Topic_Subscriber"));
         
         await client.Topic.DeleteTopicAsync(topic.Data.Key);
     }
@@ -137,11 +100,8 @@ public class TopicUnitTest : IClassFixture<Fixture>
     {
         var client = _fixture.NovuClient;
 
-        var topic = await client.Topic.CreateTopicAsync(new TopicCreateDto
-        {
-            Key = $"test:topic:{Guid.NewGuid().ToString()}",
-            Name = "Test Topic - Should_Validate_Topic_Subscriber",
-        });
+        var topic = await client.Topic.CreateTopicAsync(new CreateTopicRequest(
+            $"test:topic:{Guid.NewGuid().ToString()}", "Test Topic - Should_Validate_Topic_Subscriber"));
         
         var result = await client.Topic.GetTopicAsync(topic.Data.Key);
         
@@ -153,11 +113,7 @@ public class TopicUnitTest : IClassFixture<Fixture>
     {
         var client = _fixture.NovuClient;
 
-        var topic = await client.Topic.CreateTopicAsync(new TopicCreateDto
-        {
-            Key = $"test:topic:{Guid.NewGuid().ToString()}",
-            Name = "Test Topic - Should_Validate_Topic_Subscriber",
-        });
+        var topic = await client.Topic.CreateTopicAsync(new CreateTopicRequest($"test:topic:{Guid.NewGuid().ToString()}","Test Topic - Should_Validate_Topic_Subscriber"));
         
         var newTopicName = $"test:topic-rename:{Guid.NewGuid().ToString()}";
         

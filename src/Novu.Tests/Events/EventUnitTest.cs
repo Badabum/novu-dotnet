@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using Novu.DTO;
-using Novu.DTO.Topics;
+using Novu.Events;
 using Novu.Tests.Fixtures;
+using Novu.Topics;
 
 namespace Novu.Tests.Events;
 
@@ -28,20 +28,12 @@ public class EventUnitTest : IClassFixture<SubscriberFixture>
         };
 
         if (subscriber.SubscriberId == null) throw new Exception("Subscriber Id is null");
-        
-        var dto = new EventTriggerDataDto()
-        {
-            EventName = "test",
-            To =
-            {
-                SubscriberId = subscriber.SubscriberId
-            },
-            Payload = testRecord
-        };
+
+        var dto = new EventTriggerDataDto("test", new EventToDto(subscriber.SubscriberId), testRecord);
 
         var trigger = await client.Event.Trigger(dto);
 
-        if (!trigger.TriggerResponsePayloadDto.Acknowledged)
+        if (!trigger.Data.Acknowledged)
         {
             throw new Exception("Trigger response returned an acknowledge of false");
         }
@@ -56,28 +48,18 @@ public class EventUnitTest : IClassFixture<SubscriberFixture>
 
         var payload = new List<EventTriggerDataDto>()
         {
-            new()
-            {
-                EventName = "test",
-                To = { SubscriberId = subscriber.SubscriberId},
-                Payload = new TestRecord(){ Message = "Hello"}
-            },
-            new()
-            {
-                EventName = "test",
-                To = { SubscriberId = subscriber.SubscriberId},
-                Payload = new TestRecord(){ Message = "World"}
-            },
+            new("test", new EventToDto(subscriber.SubscriberId), new TestRecord { Message = "Hello"}),
+            new("test", new EventToDto(subscriber.SubscriberId), new TestRecord { Message = "World"})
         };
 
         var trigger = await client.Event.TriggerBulkAsync(payload);
 
-        if (trigger.PayloadDtos.Count != 2)
+        if (trigger.Data.Count != 2)
         {
             throw new Exception("Trigger response returned an acknowledge of false");
         }
 
-        if (trigger.PayloadDtos.Any(triggerPayload => !triggerPayload.Acknowledged))
+        if (trigger.Data.Any(triggerPayload => !triggerPayload.Acknowledged))
         {
             throw new Exception("Trigger response returned an acknowledge of false");
         }
@@ -97,20 +79,12 @@ public class EventUnitTest : IClassFixture<SubscriberFixture>
         };
 
         if (subscriber.SubscriberId == null) throw new Exception("Subscriber Id is null");
-        
-        var dto = new EventTriggerDataDto()
-        {
-            EventName = "test",
-            To =
-            {
-                SubscriberId = subscriber.SubscriberId
-            },
-            Payload = testRecord
-        };
+
+        var dto = new EventTriggerDataDto("test", new EventToDto(subscriber.SubscriberId), testRecord);
 
         var trigger = await client.Event.TriggerBroadcastAsync(dto);
 
-        if (!trigger.TriggerResponsePayloadDto.Acknowledged)
+        if (!trigger.Data.Acknowledged)
         {
             throw new Exception("Trigger response returned an acknowledge of false");
         }
@@ -129,25 +103,17 @@ public class EventUnitTest : IClassFixture<SubscriberFixture>
         };
 
         if (subscriber.SubscriberId == null) throw new Exception("Subscriber Id is null");
-        
-        var dto = new EventTriggerDataDto()
-        {
-            EventName = "test",
-            To =
-            {
-                SubscriberId = subscriber.SubscriberId
-            },
-            Payload = testRecord
-        };
+
+        var dto = new EventTriggerDataDto("test", new EventToDto(subscriber.SubscriberId), testRecord);
 
         var trigger = await client.Event.TriggerBroadcastAsync(dto);
 
-        if (!trigger.TriggerResponsePayloadDto.Acknowledged)
+        if (!trigger.Data.Acknowledged)
         {
             throw new Exception("Trigger response returned an acknowledge of false");
         }
 
-        await client.Event.TriggerCancelAsync(trigger.TriggerResponsePayloadDto.TransactionId);
+        await client.Event.TriggerCancelAsync(trigger.Data.TransactionId);
     }
 
     [Fact]
@@ -160,25 +126,13 @@ public class EventUnitTest : IClassFixture<SubscriberFixture>
             Message = "This is a test message"
         };
 
-        var topic = await client.Topic.CreateTopicAsync(new TopicCreateDto
-        {
-            Key = $"topic:test:{Guid.NewGuid().ToString()}",
-            Name = "Test Topic"
-        });
+        var topic = await client.Topic.CreateTopicAsync(new CreateTopicRequest($"topic:test:{Guid.NewGuid().ToString()}", "Test Topic"));
 
-        var dto = new EventTopicTriggerDto
-        {
-            EventName = "test",
-            Topic = new EventTopicDto
-            {
-                TopicKey = topic.Data.Key
-            },
-            Payload = testRecord
-        };
+        var dto = new EventTopicTriggerDto("test", new EventTopicDto(topic.Data.Key), testRecord);
 
         var topicTrigger = await client.Event.TriggerTopicAsync(dto);
 
-        Assert.True(topicTrigger.TriggerResponsePayloadDto.Acknowledged);
+        Assert.True(topicTrigger.Data.Acknowledged);
     }
 }
 

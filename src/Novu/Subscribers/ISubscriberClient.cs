@@ -1,8 +1,7 @@
-﻿using Novu.DTO;
-using Novu.Exceptions;
+﻿using Novu.Exceptions;
 using Refit;
 
-namespace Novu.Clients;
+namespace Novu.Subscribers;
 
 public interface ISubscriberClient
 {
@@ -15,7 +14,7 @@ public interface ISubscriberClient
     /// </exception>
     /// <exception cref="NovuClientException"></exception>
     [Get("/subscribers")]
-    Task<SubscribersDto> GetSubscribers([Query] int page = 0);
+    Task<PaginatedResponse<Subscriber>> GetSubscribers([Query] int page = 0);
 
     /// <summary>
     /// Get a single Subscriber
@@ -23,7 +22,7 @@ public interface ISubscriberClient
     /// <param name="id"><see cref="String"/> Subscriber ID</param>
     /// <returns></returns>
     [Get("/subscribers/{id}")]
-    Task<SubscriberDto> GetSubscriber(string id);
+    Task<Subscriber> GetSubscriber(string id);
     /// <summary>
     /// Create a new Subscriber
     /// </summary>
@@ -31,18 +30,18 @@ public interface ISubscriberClient
     /// <see cref="CreateSubscriberDto"/> Model to create a new Subscriber
     /// </param>
     /// <returns>
-    /// <see cref="SubscriberDto"/> The newly created Subscriber
+    /// <see cref="Subscriber"/> The newly created Subscriber
     /// </returns>
     [Post("/subscribers")]
-    Task<SubscriberDto> CreateSubscriber([Body]CreateSubscriberDto dto);
+    Task<Subscriber> CreateSubscriber([Body]CreateSubscriberDto dto);
 
     /// <summary>
     /// Update a Subscriber
     /// </summary>
-    /// <param name="requestDto"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
     [Put("/subscribers/{id}")]
-    Task<SubscriberDto> UpdateSubscriber(string id, [Body]SubscriberDto requestDto);
+    Task<Subscriber> UpdateSubscriber(string id, [Body]Subscriber request);
 
     /// <summary>
     /// Delete a Subscriber
@@ -51,16 +50,16 @@ public interface ISubscriberClient
     /// <see cref="string"/> Subscriber ID to delete
     /// </param>
     /// <returns>
-    /// <see cref="DeleteResponseDto"/>
+    /// <see cref="DeleteResponse"/>
     /// </returns>
     [Delete("/subscribers/{id}")]
-    Task<DeleteResponseDto> DeleteSubscriber(string id);
+    Task<DeleteResponse> DeleteSubscriber(string id);
     /// <summary>
     /// Update Subscribers online status
     /// </summary>
-    /// <param name="subscriberId"><see cref="SubscriberDto.SubscriberId"/> Subscribers ID</param>
+    /// <param name="subscriberId"><see cref="Subscriber.SubscriberId"/> Subscribers ID</param>
     /// <param name="model"><see cref="SubscriberOnlineDto"/></param>
     /// <returns></returns>
     [Patch("/subscribers/{subscriberId}/online-status")]
-    Task<SubscriberDto> UpdateOnlineStatus(string subscriberId, [Body]SubscriberOnlineDto model);
+    Task<Subscriber> UpdateOnlineStatus(string subscriberId, [Body]SubscriberOnlineDto model);
 }

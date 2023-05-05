@@ -1,6 +1,6 @@
 using Refit;
 
-namespace Novu.Interfaces;
+namespace Novu.Notifications;
 
 public interface INotificationsClient
 {
